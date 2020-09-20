@@ -11,6 +11,7 @@ const wakatimeCard = require("../src/cards/wakatime-card");
 module.exports = async (req, res) => {
   const {
     username,
+    type,
     title_color,
     icon_color,
     hide_border,
@@ -26,7 +27,7 @@ module.exports = async (req, res) => {
   res.setHeader("Content-Type", "image/svg+xml");
 
   try {
-    const last7Days = await fetchLast7Days({ username });
+    const last7Days = await fetchLast7Days({ username, apiKey: process.env.WAKA_API_KEY });
 
     let cacheSeconds = clampValue(
       parseInt(cache_seconds || CONSTANTS.TWO_HOURS, 10),
@@ -40,6 +41,11 @@ module.exports = async (req, res) => {
 
     res.setHeader("Cache-Control", `public, max-age=${cacheSeconds}`);
 
+    if (type !== "projects" && type !== "langs" && type !== "languages") {
+        // noinspection ExceptionCaughtLocallyJS
+        throw new Error("Invalid or missing \"type\" parameter. Valid values: projects, langs (or languages)");
+    }
+
     return res.send(
       wakatimeCard(last7Days, {
         hide_title: parseBoolean(hide_title),
@@ -51,6 +57,7 @@ module.exports = async (req, res) => {
         bg_color,
         theme,
         hide_progress,
+        type,
       })
     );
   } catch (err) {
