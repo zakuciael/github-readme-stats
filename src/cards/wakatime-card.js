@@ -1,6 +1,5 @@
 const { getCardColors, FlexLayout, clampValue } = require("../common/utils");
 const { getStyles } = require("../getStyles");
-const icons = require("../common/icons");
 const Card = require("../common/Card");
 
 const noCodingActivityNode = ({ color }) => {
@@ -69,7 +68,6 @@ const createTextNode = ({
 };
 
 const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
-  const { languages } = stats;
   const {
     hide_title = false,
     hide_border = false,
@@ -80,6 +78,7 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
     bg_color,
     theme = "default",
     hide_progress,
+    type,
   } = options;
 
   const lheight = parseInt(line_height, 10);
@@ -93,21 +92,21 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
     theme,
   });
 
-  const statItems = languages
-    ? languages
-        .filter((language) => language.hours || language.minutes)
-        .map((language) => {
-          return createTextNode({
-            id: language.name,
-            label: language.name,
-            value: language.text,
-            percent: language.percent,
-            progressBarColor: titleColor,
-            progressBarBackgroundColor: textColor,
-            hideProgress: hide_progress,
-          });
-        })
-    : [];
+  const items = (type === "langs" || type === "languages" ? stats.languages : stats.projects);
+  const statItems = items ? items
+      .filter((stat) => stat.hours || stat.minutes)
+      .filter((stat) => stat.name !== "Unknown Project")
+      .map((language) => {
+        return createTextNode({
+          id: language.name,
+          label: language.name,
+          value: language.text,
+          percent: language.percent,
+          progressBarColor: titleColor,
+          progressBarBackgroundColor: textColor,
+          hideProgress: hide_progress,
+        });
+      }) : [];
 
   // Calculate the card height depending on how many items there are
   // but if rank circle is visible clamp the minimum height to `150`
@@ -120,7 +119,7 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
   });
 
   const card = new Card({
-    title: "Wakatime week stats",
+    title: "WakaTime Week Stats",
     width: 495,
     height,
     colors: {
