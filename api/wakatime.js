@@ -14,6 +14,7 @@ module.exports = async (req, res) => {
     username,
     type,
     hide,
+    count,
     title_color,
     icon_color,
     hide_border,
@@ -60,7 +61,8 @@ module.exports = async (req, res) => {
         theme,
         hide_progress,
         type,
-        hide: parseArray(hide)
+        hide: parseArray(hide),
+        count,
       })
     );
   } catch (err) {

@@ -70,7 +70,7 @@ const createTextNode = ({
 const lowercaseTrim = (name) => name.toLowerCase().trim();
 
 const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
-  const {
+  let {
     hide_title = false,
     hide_border = false,
     line_height = 25,
@@ -82,6 +82,7 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
     hide_progress,
     type,
     hide,
+    count = 5,
   } = options;
 
   const lheight = parseInt(line_height, 10);
@@ -95,6 +96,7 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
     theme,
   });
 
+  const itemCount = clampValue(parseInt(count), 1, 10);
   const items = (type === "langs" || type === "languages" ? stats.languages : stats.projects);
   let langsToHide = {};
 
@@ -120,7 +122,7 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
           progressBarBackgroundColor: textColor,
           hideProgress: hide_progress,
         });
-      }) : [];
+      }).slice(0, itemCount) : [];
 
   // Calculate the card height depending on how many items there are
   // but if rank circle is visible clamp the minimum height to `150`
