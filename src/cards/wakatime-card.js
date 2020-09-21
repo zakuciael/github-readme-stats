@@ -67,8 +67,10 @@ const createTextNode = ({
   `;
 };
 
+const lowercaseTrim = (name) => name.toLowerCase().trim();
+
 const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
-  const {
+  let {
     hide_title = false,
     hide_border = false,
     line_height = 25,
@@ -79,6 +81,8 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
     theme = "default",
     hide_progress,
     type,
+    hide,
+    count = 5,
   } = options;
 
   const lheight = parseInt(line_height, 10);
@@ -92,10 +96,22 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
     theme,
   });
 
+  const itemCount = clampValue(parseInt(count), 1, 10);
   const items = (type === "langs" || type === "languages" ? stats.languages : stats.projects);
+  let langsToHide = {};
+
+  // populate langsToHide map for quick lookup
+  // while filtering out
+  if (hide) {
+    hide.forEach((langName) => {
+      langsToHide[lowercaseTrim(langName)] = true;
+    });
+  }
+
   const statItems = items ? items
       .filter((stat) => stat.hours || stat.minutes)
       .filter((stat) => stat.name !== "Unknown Project")
+      .filter((stat) => !langsToHide[lowercaseTrim(stat.name)])
       .map((language) => {
         return createTextNode({
           id: language.name,
@@ -106,7 +122,7 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
           progressBarBackgroundColor: textColor,
           hideProgress: hide_progress,
         });
-      }) : [];
+      }).slice(0, itemCount) : [];
 
   // Calculate the card height depending on how many items there are
   // but if rank circle is visible clamp the minimum height to `150`
