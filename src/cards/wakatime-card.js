@@ -67,6 +67,8 @@ const createTextNode = ({
   `;
 };
 
+const lowercaseTrim = (name) => name.toLowerCase().trim();
+
 const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
   const {
     hide_title = false,
@@ -79,6 +81,7 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
     theme = "default",
     hide_progress,
     type,
+    hide,
   } = options;
 
   const lheight = parseInt(line_height, 10);
@@ -93,9 +96,20 @@ const renderWakatimeCard = (stats = {}, options = { hide: [] }) => {
   });
 
   const items = (type === "langs" || type === "languages" ? stats.languages : stats.projects);
+  let langsToHide = {};
+
+  // populate langsToHide map for quick lookup
+  // while filtering out
+  if (hide) {
+    hide.forEach((langName) => {
+      langsToHide[lowercaseTrim(langName)] = true;
+    });
+  }
+
   const statItems = items ? items
       .filter((stat) => stat.hours || stat.minutes)
       .filter((stat) => stat.name !== "Unknown Project")
+      .filter((stat) => !langsToHide[lowercaseTrim(stat.name)])
       .map((language) => {
         return createTextNode({
           id: language.name,

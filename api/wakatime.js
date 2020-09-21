@@ -3,6 +3,7 @@ const {
   renderError,
   parseBoolean,
   clampValue,
+  parseArray,
   CONSTANTS,
 } = require("../src/common/utils");
 const { fetchLast7Days } = require("../src/fetchers/wakatime-fetcher");
@@ -12,6 +13,7 @@ module.exports = async (req, res) => {
   const {
     username,
     type,
+    hide,
     title_color,
     icon_color,
     hide_border,
@@ -58,6 +60,7 @@ module.exports = async (req, res) => {
         theme,
         hide_progress,
         type,
+        hide: parseArray(hide)
       })
     );
   } catch (err) {
